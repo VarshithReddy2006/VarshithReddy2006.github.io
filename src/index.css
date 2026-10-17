@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-ivory: #F5F3EE;
+    --text-charcoal: #202124;
+    --text-muted: #737780;
+    --accent-blue: #B9C9D8;
+    --border-color: #E3E0D9;
+  }
+
+  html {
+    background-color: var(--bg-ivory);
+    color: var(--text-charcoal);
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Accessible focus indicators */
+  :focus-visible {
+    outline: 2px solid #202124;
+    outline-offset: 3px;
+  }
+
+  /* Custom subtle scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #F5F3EE;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #D5D2C8;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #BAB6AC;
+  }
+}
+
+@layer utilities {
+  .editorial-border-b {
+    border-bottom: 1px solid #E3E0D9;
+  }
+  
+  .editorial-border-t {
+    border-top: 1px solid #E3E0D9;
+  }
+
+  .editorial-grid {
+    background-size: 40px 40px;
+    background-image: 
+      linear-gradient(to right, rgba(227, 224, 217, 0.4) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(227, 224, 217, 0.4) 1px, transparent 1px);
+  }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
