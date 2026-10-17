@@ -1,5 +1,5 @@
-import React from 'react';
-import { motion, useScroll, useSpring, useReducedMotion } from 'framer-motion';
+import React, { useRef } from 'react';
+import { motion, useScroll, useTransform, useSpring, useReducedMotion } from 'framer-motion';
 import { ArrowRight, ArrowDown } from 'lucide-react';
 import { portfolioData } from '../data/portfolioData';
 
@@ -7,79 +7,283 @@ interface StoryIntroProps {
   onComplete: () => void;
 }
 
-interface NarrativeSection {
+interface ChapterConfig {
   id: string;
   number: string;
-  title: string;
   eyebrow?: string;
-  headline: string;
+  lines: string[];
+  highlightLineIndex?: number;
   supporting: string;
-  closingLine?: string;
-  footerDetail: string;
+  footerTag: string;
 }
 
-const NARRATIVE_SECTIONS: NarrativeSection[] = [
+const CHAPTERS: ChapterConfig[] = [
   {
     id: 'beginning',
     number: '01',
-    title: 'THE BEGINNING',
     eyebrow: 'A NOTE BEFORE WE BEGIN',
-    headline: 'Every expert was once a beginner.',
+    lines: ['Every expert', 'was once a beginner.'],
     supporting:
       'Every meaningful journey starts before you feel ready. Mine began with curiosity, a willingness to learn, and the decision to keep going.',
-    footerDetail: '01 / THE BEGINNING',
+    footerTag: '01 / THE BEGINNING',
   },
   {
     id: 'struggle',
     number: '02',
-    title: 'THE STRUGGLE',
-    headline: 'You will feel behind. Learn anyway.',
+    lines: ['You will feel behind.', 'Learn anyway.'],
+    highlightLineIndex: 1, // Resolute emphasis on "Learn anyway."
     supporting:
       'There will always be someone who knows more. Let that inspire you to grow, not convince you to stop.',
-    footerDetail: '02 / THE STRUGGLE',
+    footerTag: '02 / THE STRUGGLE',
   },
   {
     id: 'practice',
     number: '03',
-    title: 'THE PRACTICE',
-    headline: 'Small steps. Repeated relentlessly.',
+    lines: ['Small steps.', 'Repeated relentlessly.'],
     supporting:
       'One problem solved. One concept understood. One project improved. Progress is rarely dramatic, but consistency compounds.',
-    footerDetail: '03 / THE PRACTICE',
+    footerTag: '03 / THE PRACTICE',
   },
   {
     id: 'failures',
     number: '04',
-    title: 'THE FAILURES',
-    headline: 'Your failures are not your final version.',
+    lines: ['Your failures', 'are not your final version.'],
     supporting:
       'Not every attempt works. Every setback is an opportunity to understand what went wrong, adapt, and return a little wiser.',
-    footerDetail: '04 / THE FAILURES',
+    footerTag: '04 / THE FAILURES',
   },
   {
     id: 'possibility',
     number: '05',
-    title: 'THE POSSIBILITY',
-    headline: "You don't need permission to start building.",
+    lines: ["You don't need permission", 'to start building.'],
+    highlightLineIndex: 1, // Momentum on "to start building."
     supporting:
       'Start with what you know. Build with what you have. Let your work become the evidence of what you can do.',
-    footerDetail: '05 / THE POSSIBILITY',
+    footerTag: '05 / THE POSSIBILITY',
   },
   {
     id: 'climax',
     number: '06',
-    title: 'THE NEXT CHAPTER',
-    headline: 'The person you want to become is built by what you do today.',
+    lines: ['The person you want to become', 'is built by what you do today.'],
     supporting: 'Your next chapter starts now.',
-    closingLine: 'And this is my story.',
-    footerDetail: '06 / THE NEXT CHAPTER',
+    footerTag: '06 / THE NEXT CHAPTER',
   },
 ];
+
+interface ChapterSectionProps {
+  chapter: ChapterConfig;
+  index: number;
+  isFirst: boolean;
+  isLast: boolean;
+  shouldReduceMotion: boolean | null;
+  onComplete: () => void;
+}
+
+const ChapterSection: React.FC<ChapterSectionProps> = ({
+  chapter,
+  isFirst,
+  isLast,
+  shouldReduceMotion,
+  onComplete,
+}) => {
+  const containerRef = useRef<HTMLElement>(null);
+
+  // Track natural scroll progress through this chapter
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ['start end', 'end start'],
+  });
+
+  // Continuous scroll-linked motion transforms for cinematic typography
+  const opacity = useTransform(
+    scrollYProgress,
+    [0.08, 0.28, 0.74, 0.96],
+    shouldReduceMotion ? [1, 1, 1, 1] : [0, 1, 1, 0.12]
+  );
+
+  const y = useTransform(
+    scrollYProgress,
+    [0.08, 0.28, 0.74, 0.96],
+    shouldReduceMotion ? [0, 0, 0, 0] : [42, 0, 0, -32]
+  );
+
+  const scale = useTransform(
+    scrollYProgress,
+    [0.08, 0.28, 0.74, 0.96],
+    shouldReduceMotion ? [1, 1, 1, 1] : [0.98, 1, 1, 0.99]
+  );
+
+  const filter = useTransform(
+    scrollYProgress,
+    [0.08, 0.24, 0.76, 0.96],
+    shouldReduceMotion
+      ? ['none', 'none', 'none', 'none']
+      : ['blur(7px)', 'blur(0px)', 'blur(0px)', 'blur(5px)']
+  );
+
+  return (
+    <section
+      ref={containerRef}
+      className={`min-h-[82vh] sm:min-h-[88vh] lg:min-h-[92vh] flex flex-col justify-between py-16 sm:py-24 lg:py-28 relative ${
+        !isFirst ? 'border-t border-[#E3E0D9]/60' : ''
+      }`}
+    >
+      {/* Scroll-linked transform container */}
+      <motion.div
+        style={{
+          opacity,
+          y,
+          scale,
+          filter,
+        }}
+        className="my-auto max-w-3xl"
+      >
+        {/* Top Eyebrow / Chapter Label */}
+        <div className="mb-6 sm:mb-8">
+          {chapter.eyebrow ? (
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#4B6B94]" />
+              <span className="text-xs font-mono tracking-[0.2em] uppercase text-[#525866] font-semibold">
+                {chapter.eyebrow}
+              </span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-mono tracking-[0.2em] uppercase text-[#7895B2] font-semibold">
+                PART {chapter.number}
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Cinematic Headline: Line-by-line staggered entrance */}
+        <h2 className="text-[clamp(2.3rem,4.8vw,4.8rem)] font-serif font-normal tracking-[-0.03em] leading-[1.12] text-[#202124] mb-6 sm:mb-8">
+          {chapter.lines.map((line, lIdx) => {
+            const isHighlighted = chapter.highlightLineIndex === lIdx;
+            return (
+              <motion.span
+                key={lIdx}
+                initial={{
+                  opacity: 0,
+                  y: shouldReduceMotion ? 0 : 22,
+                  filter: shouldReduceMotion ? 'none' : 'blur(6px)',
+                }}
+                whileInView={{
+                  opacity: 1,
+                  y: 0,
+                  filter: 'blur(0px)',
+                }}
+                viewport={{ once: true, margin: '-8% 0px -8% 0px' }}
+                transition={{
+                  duration: shouldReduceMotion ? 0.01 : 0.65,
+                  delay: shouldReduceMotion ? 0 : lIdx * 0.16,
+                  ease: [0.16, 1, 0.3, 1],
+                }}
+                className={`block ${
+                  isHighlighted ? 'text-[#4B6B94] font-medium' : 'text-[#202124]'
+                }`}
+              >
+                {line}
+              </motion.span>
+            );
+          })}
+        </h2>
+
+        {/* Supporting Editorial Paragraph */}
+        <motion.p
+          initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-8% 0px -8% 0px' }}
+          transition={{
+            duration: shouldReduceMotion ? 0.01 : 0.6,
+            delay: shouldReduceMotion ? 0 : chapter.lines.length * 0.16 + 0.1,
+            ease: [0.16, 1, 0.3, 1],
+          }}
+          className="text-base sm:text-lg lg:text-xl text-[#525866] leading-[1.72] font-sans font-normal max-w-2xl"
+        >
+          {chapter.supporting}
+        </motion.p>
+
+        {/* Chapter 06: Grand Climax Signature & Final CTA */}
+        {isLast && (
+          <div className="pt-10 sm:pt-14 space-y-8">
+            {/* Closing Signature Line */}
+            <motion.div
+              initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-5% 0px' }}
+              transition={{
+                duration: shouldReduceMotion ? 0.01 : 0.65,
+                delay: shouldReduceMotion ? 0 : 0.45,
+              }}
+              className="border-l-2 border-[#7895B2]/60 pl-5 sm:pl-6 py-1"
+            >
+              <p className="font-serif italic text-2xl sm:text-3xl lg:text-4xl text-[#202124] tracking-tight">
+                &ldquo;And this is my story.&rdquo;
+              </p>
+              <span className="text-xs font-mono text-[#737780] block mt-2">
+                Shavva Varshith Reddy &bull; 2026
+              </span>
+            </motion.div>
+
+            {/* Primary Enter Portfolio Button */}
+            <motion.div
+              initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-5% 0px' }}
+              transition={{
+                duration: shouldReduceMotion ? 0.01 : 0.65,
+                delay: shouldReduceMotion ? 0 : 0.65,
+              }}
+              className="pt-2"
+            >
+              <button
+                type="button"
+                onClick={onComplete}
+                className="relative overflow-hidden group inline-flex items-center gap-3 px-8 sm:px-10 py-4 sm:py-4.5 rounded-full bg-[#202124] text-[#FAF9F6] text-xs sm:text-sm font-mono uppercase tracking-wider font-semibold hover:bg-[#34373C] active:scale-[0.98] transition-all shadow-md hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#202124]"
+              >
+                {!shouldReduceMotion && (
+                  <span
+                    className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/15 to-transparent pointer-events-none"
+                    aria-hidden="true"
+                  />
+                )}
+                <span>ENTER PORTFOLIO</span>
+                <ArrowRight className="w-4 h-4 text-[#FAF9F6] group-hover:translate-x-1.5 transition-transform" />
+              </button>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Chapter 01: Subtle Scroll Indicator */}
+        {isFirst && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8, duration: 0.8 }}
+            className="pt-10 flex items-center gap-2 text-[11px] font-mono tracking-widest uppercase text-[#737780] select-none pointer-events-none"
+          >
+            <ArrowDown className="w-3.5 h-3.5 text-[#7895B2] animate-bounce" />
+            <span>Scroll to read story</span>
+          </motion.div>
+        )}
+      </motion.div>
+
+      {/* Chapter Footer Tag */}
+      <div className="pt-8 flex items-center justify-between text-xs font-mono text-[#737780] border-t border-[#E3E0D9]/40">
+        <span>{chapter.footerTag}</span>
+        <span className="text-[11px] font-mono tracking-wider uppercase text-[#7895B2]/70">
+          {isLast ? 'DESTINATION' : 'NARRATIVE'}
+        </span>
+      </div>
+    </section>
+  );
+};
 
 export const StoryIntro: React.FC<StoryIntroProps> = ({ onComplete }) => {
   const shouldReduceMotion = useReducedMotion();
 
-  // Scroll reading progress indicator
+  // Global reading-progress indicator smoothly driven by vertical scroll
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 140,
@@ -90,7 +294,7 @@ export const StoryIntro: React.FC<StoryIntroProps> = ({ onComplete }) => {
   return (
     <div
       role="region"
-      aria-label="Editorial Introduction Story"
+      aria-label="Cinematic Editorial Story"
       className="min-h-screen bg-[#F5F3EE] text-[#202124] relative selection:bg-[#7895B2]/20 font-sans"
     >
       {/* ========================================================= */}
@@ -107,7 +311,7 @@ export const StoryIntro: React.FC<StoryIntroProps> = ({ onComplete }) => {
               {portfolioData.name}
             </span>
             <span className="text-[10px] font-mono text-[#737780] tracking-widest uppercase">
-              INTRODUCTORY NOTE &bull; 2026
+              EDITORIAL ESSAY &bull; 2026
             </span>
           </div>
         </div>
@@ -117,7 +321,7 @@ export const StoryIntro: React.FC<StoryIntroProps> = ({ onComplete }) => {
           <button
             type="button"
             onClick={onComplete}
-            aria-label="Skip introduction and enter portfolio directly"
+            aria-label="Skip story and enter portfolio directly"
             className="group inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-mono tracking-wider uppercase text-[#525866] hover:text-[#202124] hover:bg-white rounded-full border border-transparent hover:border-[#E3E0D9] transition-all shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#202124]"
           >
             <span>Skip to Portfolio</span>
@@ -125,141 +329,47 @@ export const StoryIntro: React.FC<StoryIntroProps> = ({ onComplete }) => {
           </button>
         </div>
 
-        {/* Unobtrusive Scroll Progress Line */}
+        {/* Smooth Scroll Reading Progress Line */}
         {!shouldReduceMotion && (
           <motion.div
             style={{ scaleX }}
-            className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#4B6B94] via-[#7895B2] to-[#B9C9D8] origin-left pointer-events-none"
+            className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-[#4B6B94] via-[#7895B2] to-[#B9C9D8] origin-left pointer-events-none"
             aria-hidden="true"
           />
         )}
       </header>
 
       {/* ========================================================= */}
-      {/* CONTINUOUS VERTICAL EDITORIAL NARRATIVE                   */}
+      {/* CONTINUOUS VERTICAL NARRATIVE                             */}
       {/* ========================================================= */}
       <main className="max-w-4xl mx-auto px-6 sm:px-10 lg:px-12">
-        {NARRATIVE_SECTIONS.map((section, idx) => {
-          const isFirst = idx === 0;
-          const isLast = idx === NARRATIVE_SECTIONS.length - 1;
-
-          return (
-            <motion.section
-              key={section.id}
-              initial={{
-                opacity: 0,
-                y: shouldReduceMotion ? 0 : 28,
-              }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-10% 0px -10% 0px' }}
-              transition={{
-                duration: shouldReduceMotion ? 0.01 : 0.65,
-                ease: [0.16, 1, 0.3, 1],
-              }}
-              className={`min-h-[75vh] sm:min-h-[85vh] lg:min-h-[88vh] flex flex-col justify-between py-16 sm:py-24 lg:py-28 ${
-                !isFirst ? 'border-t border-[#E3E0D9]/70' : ''
-              }`}
-            >
-              {/* Top Meta Area */}
-              <div className="pt-2">
-                {section.eyebrow ? (
-                  <div className="flex items-center gap-2 mb-6 sm:mb-8">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#4B6B94]" />
-                    <span className="text-xs font-mono tracking-[0.2em] uppercase text-[#525866] font-semibold">
-                      {section.eyebrow}
-                    </span>
-                  </div>
-                ) : (
-                  <div className="mb-6 sm:mb-8">
-                    <span className="text-xs font-mono tracking-[0.2em] uppercase text-[#7895B2] font-semibold">
-                      PART {section.number}
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* Main Text Content */}
-              <div className="my-auto max-w-2xl sm:max-w-3xl">
-                {/* Large Editorial Headline */}
-                <h2 className="text-[clamp(2.2rem,4.5vw,4.5rem)] font-serif font-normal text-[#202124] tracking-[-0.025em] leading-[1.12] mb-6 sm:mb-8">
-                  {section.headline}
-                </h2>
-
-                {/* Supporting Editorial Paragraph */}
-                <p className="text-base sm:text-lg lg:text-xl text-[#525866] leading-[1.7] font-sans font-normal max-w-2xl">
-                  {section.supporting}
-                </p>
-
-                {/* Section 06 Signature & Primary Enter Portfolio Action */}
-                {isLast && (
-                  <div className="pt-10 sm:pt-12 space-y-8">
-                    {section.closingLine && (
-                      <div className="border-l-2 border-[#7895B2]/60 pl-5 sm:pl-6 py-1">
-                        <p className="font-serif italic text-2xl sm:text-3xl lg:text-4xl text-[#202124] tracking-tight">
-                          &ldquo;{section.closingLine}&rdquo;
-                        </p>
-                        <span className="text-xs font-mono text-[#737780] block mt-2">
-                          Shavva Varshith Reddy &bull; 2026
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Primary CTA Button */}
-                    <div className="pt-4">
-                      <button
-                        type="button"
-                        onClick={onComplete}
-                        className="relative overflow-hidden group inline-flex items-center gap-3 px-8 sm:px-10 py-4 sm:py-4.5 rounded-full bg-[#202124] text-[#FAF9F6] text-xs sm:text-sm font-mono uppercase tracking-wider font-semibold hover:bg-[#34373C] active:scale-[0.98] transition-all shadow-md hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#202124]"
-                      >
-                        {/* Subtle Shimmer Reflection */}
-                        {!shouldReduceMotion && (
-                          <span
-                            className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/15 to-transparent pointer-events-none"
-                            aria-hidden="true"
-                          />
-                        )}
-                        <span>ENTER PORTFOLIO</span>
-                        <ArrowRight className="w-4 h-4 text-[#FAF9F6] group-hover:translate-x-1.5 transition-transform" />
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {/* Subtle Scroll Hint on First Section */}
-                {isFirst && (
-                  <div className="pt-10 flex items-center gap-2 text-[11px] font-mono tracking-widest uppercase text-[#737780] select-none pointer-events-none">
-                    <ArrowDown className="w-3.5 h-3.5 text-[#7895B2] animate-bounce" />
-                    <span>Scroll to read narrative</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Section Footer Detail */}
-              <div className="pt-8 flex items-center justify-between border-t border-[#E3E0D9]/50 text-xs font-mono text-[#737780]">
-                <span>{section.footerDetail}</span>
-                <span className="text-[10px] uppercase tracking-widest text-[#7895B2]/70">
-                  {idx + 1} / {NARRATIVE_SECTIONS.length}
-                </span>
-              </div>
-            </motion.section>
-          );
-        })}
+        {CHAPTERS.map((chapter, idx) => (
+          <ChapterSection
+            key={chapter.id}
+            chapter={chapter}
+            index={idx}
+            isFirst={idx === 0}
+            isLast={idx === CHAPTERS.length - 1}
+            shouldReduceMotion={shouldReduceMotion}
+            onComplete={onComplete}
+          />
+        ))}
       </main>
 
       {/* ========================================================= */}
-      {/* EDITORIAL BOTTOM TRANSITION STRIP                         */}
+      {/* BOTTOM TRANSITION STRIP                                   */}
       {/* ========================================================= */}
-      <footer className="border-t border-[#E3E0D9] py-10 px-6 sm:px-10 text-center bg-[#F5F3EE]">
+      <footer className="border-t border-[#E3E0D9] py-12 px-6 sm:px-10 text-center bg-[#F5F3EE]">
         <div className="max-w-xl mx-auto flex flex-col items-center gap-4">
           <p className="text-xs font-mono text-[#737780] tracking-wider uppercase">
-            END OF INTRODUCTORY NOTE
+            END OF INTRODUCTORY ESSAY
           </p>
           <button
             type="button"
             onClick={onComplete}
-            className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-[#202124] hover:text-[#7895B2] font-semibold underline underline-offset-4 transition-colors"
+            className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-[#202124] hover:text-[#7895B2] font-semibold underline underline-offset-4 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#202124]"
           >
-            <span>Proceed directly to portfolio overview &rarr;</span>
+            <span>Proceed to portfolio &rarr;</span>
           </button>
         </div>
       </footer>
