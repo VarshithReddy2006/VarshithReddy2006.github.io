@@ -71,18 +71,6 @@ export const App: React.FC = () => {
     return true;
   });
 
-  // Lock body scroll while the immersive full-screen story intro is showing
-  useEffect(() => {
-    if (showIntro) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [showIntro]);
-
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash;
