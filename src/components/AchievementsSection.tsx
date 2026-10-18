@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
   Award,
@@ -10,6 +11,7 @@ import {
   Eye,
   X,
   ExternalLink,
+  Download,
 } from 'lucide-react';
 import { portfolioData, MilestoneItem } from '../data/portfolioData';
 
@@ -183,7 +185,7 @@ export const AchievementsSection: React.FC = () => {
               </div>
             )}
 
-            {/* Tags & Meta Chips */}
+            {/* Tags & Meta Chips + Action Button */}
             <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-[#E3E0D9]">
               {featuredCertification.tags && (
                 <div className="flex flex-wrap items-center gap-1.5">
@@ -366,122 +368,135 @@ export const AchievementsSection: React.FC = () => {
       </div>
 
       {/* ========================================================= */}
-      {/* Accessible Certificate Preview Modal                     */}
+      {/* Accessible High-Resolution Certificate Preview Modal      */}
       {/* ========================================================= */}
-      <AnimatePresence>
-        {selectedCertificate && selectedCertificate.certificateImage && (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="certificate-modal-title"
-            aria-describedby="certificate-modal-desc"
-          >
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              onClick={() => setSelectedCertificate(null)}
-              className="fixed inset-0 bg-[#202124]/75 backdrop-blur-sm"
-              aria-hidden="true"
-            />
-
-            {/* Modal Container */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 16 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 16 }}
-              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-              className="relative bg-white rounded-2xl sm:rounded-3xl border border-[#E3E0D9] shadow-2xl max-w-4xl w-full z-10 overflow-hidden my-auto flex flex-col max-h-[92vh]"
-            >
-              {/* Header */}
-              <div className="flex items-start justify-between p-4 sm:p-6 border-b border-[#E3E0D9] bg-[#FAF9F6] gap-4">
-                <div className="space-y-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-[10px] font-mono uppercase tracking-wider text-[#737780] font-semibold">
-                      {selectedCertificate.category}
-                    </span>
-                    {selectedCertificate.distinctionBadge && (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[10px] font-mono uppercase tracking-wider font-semibold">
-                        <Sparkles className="w-2.5 h-2.5 text-emerald-600" />
-                        <span>{selectedCertificate.distinctionBadge}</span>
-                      </span>
-                    )}
-                  </div>
-                  <h3
-                    id="certificate-modal-title"
-                    className="text-lg sm:text-2xl font-serif font-semibold text-[#202124] tracking-tight"
-                  >
-                    {selectedCertificate.title}
-                  </h3>
-                  <p id="certificate-modal-desc" className="text-xs font-mono text-[#7895B2]">
-                    Issued by <span className="font-semibold text-[#202124]">{selectedCertificate.issuer}</span>
-                    {selectedCertificate.duration && ` · Duration: ${selectedCertificate.duration}`}
-                    {selectedCertificate.period && ` · Date: ${selectedCertificate.period}`}
-                    {selectedCertificate.credentialId && ` · No: ${selectedCertificate.credentialId}`}
-                  </p>
-                </div>
-
-                <button
-                  type="button"
+      {typeof document !== 'undefined' &&
+        createPortal(
+          <AnimatePresence>
+            {selectedCertificate && selectedCertificate.certificateImage && (
+              <div
+                className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="certificate-modal-title"
+                aria-describedby="certificate-modal-desc"
+              >
+                {/* Backdrop */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
                   onClick={() => setSelectedCertificate(null)}
-                  className="p-2 rounded-xl text-[#737780] hover:text-[#202124] hover:bg-[#E3E0D9]/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#202124] flex-shrink-0"
-                  aria-label="Close certificate preview"
+                  className="fixed inset-0 bg-[#202124]/80 backdrop-blur-sm"
+                  aria-hidden="true"
+                />
+
+                {/* Modal Container */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95, y: 16 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: 16 }}
+                  transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                  className="relative bg-white rounded-2xl sm:rounded-3xl border border-[#E3E0D9] shadow-2xl max-w-5xl w-full z-10 overflow-hidden my-auto flex flex-col max-h-[94vh]"
                 >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
+                  {/* Header */}
+                  <div className="flex-shrink-0 flex items-start justify-between p-4 sm:p-5 border-b border-[#E3E0D9] bg-[#FAF9F6] gap-4">
+                    <div className="space-y-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-[10px] font-mono uppercase tracking-wider text-[#737780] font-semibold">
+                          {selectedCertificate.category}
+                        </span>
+                        {selectedCertificate.distinctionBadge && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[10px] font-mono uppercase tracking-wider font-semibold">
+                            <Sparkles className="w-2.5 h-2.5 text-emerald-600" />
+                            <span>{selectedCertificate.distinctionBadge}</span>
+                          </span>
+                        )}
+                      </div>
+                      <h3
+                        id="certificate-modal-title"
+                        className="text-lg sm:text-2xl font-serif font-semibold text-[#202124] tracking-tight"
+                      >
+                        {selectedCertificate.title}
+                      </h3>
+                      <p id="certificate-modal-desc" className="text-xs font-mono text-[#7895B2]">
+                        Issued by <span className="font-semibold text-[#202124]">{selectedCertificate.issuer}</span>
+                        {selectedCertificate.duration && ` · Duration: ${selectedCertificate.duration}`}
+                        {selectedCertificate.period && ` · Date: ${selectedCertificate.period}`}
+                        {selectedCertificate.credentialId && ` · Credential No: ${selectedCertificate.credentialId}`}
+                      </p>
+                    </div>
 
-              {/* Body / Certificate Image Display */}
-              <div className="p-3 sm:p-6 overflow-y-auto bg-[#F5F3EE]/60 flex flex-col items-center justify-center">
-                <div className="relative rounded-xl overflow-hidden border border-[#E3E0D9] bg-white shadow-md max-w-full">
-                  <img
-                    src={selectedCertificate.certificateImage}
-                    alt={`Certificate for ${selectedCertificate.title} awarded to Shavva Varshith Reddy by ${selectedCertificate.issuer}`}
-                    className="w-full h-auto max-h-[60vh] object-contain block select-none"
-                  />
-                </div>
-              </div>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedCertificate(null)}
+                      className="p-2 rounded-xl text-[#737780] hover:text-[#202124] hover:bg-[#E3E0D9]/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#202124] flex-shrink-0"
+                      aria-label="Close certificate preview"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
 
-              {/* Footer */}
-              <div className="p-4 sm:p-5 border-t border-[#E3E0D9] bg-white flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-                <div className="flex flex-wrap items-center gap-2 text-center sm:text-left">
-                  <span className="font-mono text-[#737780]">Verification:</span>
-                  <span className="font-mono text-[#202124] font-medium">
-                    Genuine certificate document ({selectedCertificate.credentialId || 'Verified'})
-                  </span>
-                  <span className="hidden sm:inline text-[#E3E0D9]">·</span>
-                  <span className="text-[11px] font-sans text-[#737780]">
-                    Awarded to Shavva Varshith Reddy · Preserved original document
-                  </span>
-                </div>
+                  {/* Body / High-Resolution Certificate Image Display */}
+                  <div className="flex-1 min-h-0 p-3 sm:p-5 overflow-auto bg-[#F5F3EE]/80 flex items-center justify-center">
+                    <div className="max-w-full max-h-full flex items-center justify-center">
+                      <img
+                        src={selectedCertificate.certificateImage}
+                        alt={`Certificate for ${selectedCertificate.title} awarded to Shavva Varshith Reddy by ${selectedCertificate.issuer}`}
+                        className="max-h-[calc(86vh-175px)] max-w-full w-auto h-auto object-contain rounded-xl border border-[#E3E0D9] bg-white shadow-xl block select-none"
+                      />
+                    </div>
+                  </div>
 
-                <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-                  <a
-                    href={selectedCertificate.certificateImage}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-[#E3E0D9] bg-[#FAF9F6] text-[#202124] hover:border-[#7895B2] hover:text-[#7895B2] font-mono text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#202124]"
-                  >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                    <span>Open Full Size</span>
-                  </a>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedCertificate(null)}
-                    className="inline-flex items-center justify-center px-4 py-1.5 rounded-lg bg-[#202124] text-white hover:bg-[#202124]/85 font-mono text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#202124]"
-                  >
-                    Close
-                  </button>
-                </div>
+                  {/* Footer */}
+                  <div className="flex-shrink-0 p-3 sm:p-4 border-t border-[#E3E0D9] bg-white flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                    <div className="flex flex-wrap items-center gap-2 text-center sm:text-left">
+                      <span className="font-mono text-[#737780]">Verification:</span>
+                      <span className="font-mono text-[#202124] font-medium">
+                        Genuine certificate document ({selectedCertificate.credentialId || 'Verified Record'})
+                      </span>
+                      <span className="hidden sm:inline text-[#E3E0D9]">·</span>
+                      <span className="text-[11px] font-sans text-[#737780]">
+                        Awarded to Shavva Varshith Reddy
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                      <a
+                        href={selectedCertificate.certificateImage}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-[#E3E0D9] bg-[#FAF9F6] text-[#202124] hover:border-[#7895B2] hover:text-[#7895B2] font-mono text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#202124]"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                        <span>Open Full Size</span>
+                      </a>
+
+                      <a
+                        href={selectedCertificate.certificateImage}
+                        download
+                        className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-[#E3E0D9] bg-white text-[#202124] hover:border-[#202124] font-mono text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#202124]"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        <span>Download</span>
+                      </a>
+
+                      <button
+                        type="button"
+                        onClick={() => setSelectedCertificate(null)}
+                        className="inline-flex items-center justify-center px-4 py-1.5 rounded-lg bg-[#202124] text-white hover:bg-[#202124]/85 font-mono text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#202124]"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
               </div>
-            </motion.div>
-          </div>
+            )}
+          </AnimatePresence>,
+          document.body
         )}
-      </AnimatePresence>
     </section>
   );
 };
-

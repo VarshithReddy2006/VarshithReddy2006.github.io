@@ -6,10 +6,9 @@ import { portfolioData } from '../data/portfolioData';
 interface HeaderProps {
   onOpenContact?: () => void;
   onOpenResume: () => void;
-  onReplayStory?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onOpenResume, onReplayStory }) => {
+export const Header: React.FC<HeaderProps> = ({ onOpenResume }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
@@ -158,16 +157,6 @@ export const Header: React.FC<HeaderProps> = ({ onOpenResume, onReplayStory }) =
 
         {/* Desktop Download Resume Action */}
         <div className="hidden lg:flex items-center gap-3 justify-end">
-          {onReplayStory && (
-            <button
-              type="button"
-              onClick={onReplayStory}
-              title="Watch introductory story"
-              className="text-xs font-mono tracking-wider text-[#525866] hover:text-[#202124] transition-colors px-2.5 py-1.5 rounded-full hover:bg-[#E3E0D9]/50"
-            >
-              Story Intro
-            </button>
-          )}
           <a
             href={portfolioData.resumePath}
             download="Shavva_Varshith_Reddy_Resume.pdf"
@@ -214,18 +203,6 @@ export const Header: React.FC<HeaderProps> = ({ onOpenResume, onReplayStory }) =
                 {link.label}
               </a>
             ))}
-            {onReplayStory && (
-              <button
-                type="button"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  onReplayStory();
-                }}
-                className="text-left py-1.5 border-b border-[#E3E0D9]/60 font-mono text-xs uppercase tracking-wider text-[#7895B2] hover:text-[#202124] transition-colors"
-              >
-                Watch Motivational Intro &rarr;
-              </button>
-            )}
             <div className="pt-2">
               <a
                 href={portfolioData.resumePath}

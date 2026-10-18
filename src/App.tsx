@@ -9,7 +9,6 @@ import { ContactSection } from './components/ContactSection';
 import { ExperienceSection } from './components/ExperienceSection';
 import { AchievementsSection } from './components/AchievementsSection';
 import { ProjectDetailView } from './components/ProjectDetailView';
-import { StoryIntro } from './components/StoryIntro';
 import { Footer } from './components/Footer';
 import { ContactModal } from './components/ContactModal';
 import { ResumeModal } from './components/ResumeModal';
@@ -57,33 +56,13 @@ export const App: React.FC = () => {
     };
   }, []);
 
-  // Storytelling intro state - starts with the story sequence first on launch
-  const [showIntro, setShowIntro] = useState<boolean>(() => {
-    if (typeof window !== 'undefined') {
-      const hash = window.location.hash;
-      if (hash === '#intro') return true;
-      // If directly deep-linking to a specific project case study, bypass intro
-      if (hash.startsWith('#project/')) {
-        return false;
-      }
-    }
-    // Launch portfolio with the story sequence first
-    return true;
-  });
-
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash;
-      if (hash === '#intro') {
-        setShowIntro(true);
-        setActiveProjectId(null);
-        return;
-      }
       if (hash.startsWith('#project/')) {
         const id = hash.replace('#project/', '');
         if (portfolioData.projects.some((p) => p.id === id)) {
           setActiveProjectId(id);
-          setShowIntro(false);
           window.scrollTo({ top: 0, behavior: 'smooth' });
           return;
         }
@@ -94,19 +73,6 @@ export const App: React.FC = () => {
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
-
-  const handleCompleteIntro = () => {
-    setShowIntro(false);
-    if (window.location.hash === '#intro') {
-      window.history.replaceState(null, '', window.location.pathname + window.location.search);
-    }
-    window.scrollTo({ top: 0, behavior: 'instant' });
-  };
-
-  const handleReplayIntro = () => {
-    setShowIntro(true);
-    window.scrollTo({ top: 0, behavior: 'instant' });
-  };
 
   const handleSelectProject = (id: string) => {
     window.location.hash = `#project/${id}`;
@@ -138,43 +104,23 @@ export const App: React.FC = () => {
   const activeProject = portfolioData.projects.find((p) => p.id === activeProjectId);
 
   return (
-    <AnimatePresence mode="wait">
-      {showIntro ? (
-        /* Cinematic Story Introduction Sequence First */
-        <StoryIntro key="story-sequence" onComplete={handleCompleteIntro} />
-      ) : (
-        /* Portfolio Displayed Later Once Story Completes */
-        <motion.div
-          key="main-portfolio-container"
-          initial={{
-            opacity: 0,
-            y: shouldReduceMotion ? 0 : 20,
-            filter: shouldReduceMotion ? 'none' : 'blur(6px)',
+    <div className="min-h-screen flex flex-col bg-[#F5F3EE] text-[#202124] relative selection:bg-[#7895B2]/20">
+      {/* Cinematic Ambient Mouse Spotlight (desktop only, pointer-events-none) */}
+      {!shouldReduceMotion && (
+        <div
+          className="pointer-events-none fixed inset-0 z-30 hidden md:block transition-opacity duration-500"
+          style={{
+            background: `radial-gradient(650px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(120, 149, 178, 0.09), transparent 75%)`,
           }}
-          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-          transition={{
-            duration: shouldReduceMotion ? 0.01 : 0.75,
-            ease: [0.22, 1, 0.36, 1],
-          }}
-          className="min-h-screen flex flex-col bg-[#F5F3EE] text-[#202124] relative selection:bg-[#7895B2]/20"
-        >
-          {/* Cinematic Ambient Mouse Spotlight (desktop only, pointer-events-none) */}
-          {!shouldReduceMotion && (
-            <div
-              className="pointer-events-none fixed inset-0 z-30 hidden md:block transition-opacity duration-500"
-              style={{
-                background: `radial-gradient(650px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(120, 149, 178, 0.09), transparent 75%)`,
-              }}
-              aria-hidden="true"
-            />
-          )}
+          aria-hidden="true"
+        />
+      )}
 
-          {/* Universal Header with Scroll Reading Indicator */}
-          <Header
-            onOpenContact={() => setIsContactOpen(true)}
-            onOpenResume={() => setIsResumeOpen(true)}
-            onReplayStory={handleReplayIntro}
-          />
+      {/* Universal Header with Scroll Reading Indicator */}
+      <Header
+        onOpenContact={() => setIsContactOpen(true)}
+        onOpenResume={() => setIsResumeOpen(true)}
+      />
 
       {/* Main Content Area with Filmic Route Transitions */}
       <main className="flex-grow relative z-10">
@@ -214,7 +160,12 @@ export const App: React.FC = () => {
                 y: shouldReduceMotion ? 0 : 16,
                 filter: shouldReduceMotion ? 'none' : 'blur(4px)',
               }}
-              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              animate={{
+                opacity: 1,
+                y: 0,
+                filter: 'blur(0px)',
+                transitionEnd: { filter: 'none' },
+              }}
               exit={{
                 opacity: 0,
                 y: shouldReduceMotion ? 0 : -16,
@@ -254,7 +205,6 @@ export const App: React.FC = () => {
       <Footer
         onOpenContact={() => setIsContactOpen(true)}
         onOpenResume={() => setIsResumeOpen(true)}
-        onReplayStory={handleReplayIntro}
       />
 
       {/* Floating Cinematic Back-to-Top Button */}
@@ -286,9 +236,7 @@ export const App: React.FC = () => {
         isOpen={isResumeOpen}
         onClose={() => setIsResumeOpen(false)}
       />
-        </motion.div>
-      )}
-    </AnimatePresence>
+    </div>
   );
 };
 

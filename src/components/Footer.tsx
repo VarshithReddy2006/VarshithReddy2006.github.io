@@ -6,10 +6,9 @@ import { SocialLinks } from './SocialLinks';
 interface FooterProps {
   onOpenContact?: () => void;
   onOpenResume: () => void;
-  onReplayStory?: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onOpenResume, onReplayStory }) => {
+export const Footer: React.FC<FooterProps> = ({ onOpenResume }) => {
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
@@ -67,17 +66,6 @@ export const Footer: React.FC<FooterProps> = ({ onOpenResume, onReplayStory }) =
                   Get in Touch
                 </a>
               </li>
-              {onReplayStory && (
-                <li>
-                  <button
-                    type="button"
-                    onClick={onReplayStory}
-                    className="hover:text-[#202124] transition-colors text-left font-mono text-xs text-[#7895B2] block"
-                  >
-                    Replay Story Intro &rarr;
-                  </button>
-                </li>
-              )}
             </ul>
           </div>
 
